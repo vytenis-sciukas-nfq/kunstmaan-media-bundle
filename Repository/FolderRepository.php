@@ -31,23 +31,9 @@ class FolderRepository extends NestedTreeRepository
     public function save(Folder $folder)
     {
         $em = $this->getEntityManager();
-        $parent = $folder->getParent();
 
-        $em->beginTransaction();
-
-        try {
-            if (!\is_null($parent)) {
-                $this->persistInOrderedTree($folder, $parent);
-            } else {
-                $em->persist($folder);
-            }
-            $em->commit();
-            $em->flush();
-        } catch (\Exception $e) {
-            $em->rollback();
-
-            throw $e;
-        }
+        $em->persist($folder);
+        $em->flush();
     }
 
     public function delete(Folder $folder)
@@ -269,34 +255,7 @@ class FolderRepository extends NestedTreeRepository
      */
     public function rebuildTree()
     {
-        $em = $this->getEntityManager();
-
-        // Reset tree...
-        $sql = 'UPDATE kuma_folders SET lvl=NULL,lft=NULL,rgt=NULL';
-        $stmt = $em->getConnection()->prepare($sql);
-        $stmt->executeStatement();
-
-        $folders = $this->findBy([], ['parent' => 'ASC', 'name' => 'asc']);
-
-        $rootFolder = $folders[0];
-        $first = true;
-        foreach ($folders as $folder) {
-            // Force parent load
-            $parent = $folder->getParent();
-            if (\is_null($parent)) {
-                $folder->setLevel(0);
-                if ($first) {
-                    $this->persistAsFirstChild($folder);
-                    $first = false;
-                } else {
-                    $this->persistAsNextSiblingOf($folder, $rootFolder);
-                }
-            } else {
-                $folder->setLevel($parent->getLevel() + 1);
-                $this->persistAsLastChildOf($folder, $parent);
-            }
-        }
-        $em->flush();
+        $this->recover(['flush' => true]);
     }
 
     /**
