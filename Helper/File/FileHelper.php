@@ -2,8 +2,11 @@
 
 namespace Kunstmaan\MediaBundle\Helper\File;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Kunstmaan\MediaBundle\Entity\Folder;
 use Kunstmaan\MediaBundle\Entity\Media;
+use Kunstmaan\MediaBundle\Entity\TranslationInterface;
 use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -164,6 +167,26 @@ class FileHelper
 
             throw new AccessDeniedException('Can not link file');
         }
+    }
+
+    public function getAltText(): ?string
+    {
+        return $this->media->getAltText();
+    }
+
+    public function getTranslations(): ArrayCollection|Collection
+    {
+        return $this->media->getTranslations();
+    }
+
+    public function addTranslation(TranslationInterface $t): void
+    {
+        $this->media->addTranslation($t);
+    }
+
+    public function removeTranslation(TranslationInterface $t): void
+    {
+        $this->media->removeTranslation($t);
     }
 
     /**
