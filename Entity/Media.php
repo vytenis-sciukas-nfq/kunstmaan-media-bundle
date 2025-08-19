@@ -16,14 +16,12 @@ use Doctrine\Common\Collections\Collection;
  *      @ORM\Index(name="idx_media_deleted", columns={"deleted"})
  * })
  * @ORM\HasLifecycleCallbacks
- * @Gedmo\TranslationEntity(class="Kunstmaan\MediaBundle\Entity\Translation")
  */
 #[ORM\Entity(repositoryClass: MediaRepository::class)]
 #[ORM\Table(name: 'kuma_media')]
 #[ORM\Index(name: 'idx_media_name', columns: ['name'])]
 #[ORM\Index(name: 'idx_media_deleted', columns: ['deleted'])]
 #[ORM\HasLifecycleCallbacks]
-#[Gedmo\TranslationEntity(class: Translation::class)]
 class Media extends AbstractEntity implements HasTranslationsInterface
 {
     /**
