@@ -2,10 +2,12 @@
 
 namespace Kunstmaan\MediaBundle\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Kunstmaan\AdminBundle\Entity\AbstractEntity;
 use Kunstmaan\MediaBundle\Repository\MediaRepository;
+use Doctrine\Common\Collections\Collection;
 
 /**
  * @ORM\Entity(repositoryClass="Kunstmaan\MediaBundle\Repository\MediaRepository")
@@ -14,13 +16,15 @@ use Kunstmaan\MediaBundle\Repository\MediaRepository;
  *      @ORM\Index(name="idx_media_deleted", columns={"deleted"})
  * })
  * @ORM\HasLifecycleCallbacks
+ * @Gedmo\TranslationEntity(class="Kunstmaan\MediaBundle\Entity\Translation")
  */
 #[ORM\Entity(repositoryClass: MediaRepository::class)]
 #[ORM\Table(name: 'kuma_media')]
 #[ORM\Index(name: 'idx_media_name', columns: ['name'])]
 #[ORM\Index(name: 'idx_media_deleted', columns: ['deleted'])]
 #[ORM\HasLifecycleCallbacks]
-class Media extends AbstractEntity
+#[Gedmo\TranslationEntity(class: Translation::class)]
+class Media extends AbstractEntity implements HasTranslationsInterface
 {
     /**
      * @var string
@@ -162,12 +166,37 @@ class Media extends AbstractEntity
     #[ORM\Column(name: 'removed_from_file_system', type: 'boolean')]
     protected $removedFromFileSystem;
 
+    /**
+     * @var ?string
+     *
+     * @ORM\Column(name="alt_text", type="text", nullable=true)
+     * @Gedmo\Translatable
+     */
+    #[ORM\Column(name: 'alt_text', type: 'text', nullable: true)]
+    #[Gedmo\Translatable]
+    protected $altText;
+
+    /**
+     * @var Collection<int, Translation>
+     * @ORM\OneToMany(
+     *   targetEntity="Kunstmaan\MediaBundle\Entity\Translation",
+     *   mappedBy="object",
+     *   cascade={"persist", "remove"}
+     * )
+     */
+    #[ORM\OneToMany(
+        targetEntity: Translation::class,
+        mappedBy: "object",
+        cascade: ["persist", "remove"]
+    )]
+    protected Collection $translations;
     public function __construct()
     {
         $this->setCreatedAt(new \DateTime());
         $this->setUpdatedAt(new \DateTime());
         $this->deleted = false;
         $this->removedFromFileSystem = false;
+        $this->translations = new ArrayCollection();
     }
 
     /**
@@ -589,6 +618,36 @@ class Media extends AbstractEntity
     public function setRemovedFromFileSystem($removedFromFileSystem)
     {
         $this->removedFromFileSystem = $removedFromFileSystem;
+    }
+
+    public function getAltText(): ?string
+    {
+        return $this->altText;
+    }
+
+    public function setAltText(?string $altText): void
+    {
+        $this->altText = $altText;
+    }
+
+    public function getTranslations(): ArrayCollection|Collection
+    {
+        return $this->translations;
+    }
+
+    public function addTranslation(TranslationInterface $t): void
+    {
+        if (!$this->translations->contains($t)) {
+            $this->translations[] = $t;
+            $t->setObject($this);
+        }
+    }
+
+    public function removeTranslation(TranslationInterface $t): void
+    {
+        if ($this->translations->contains($t)) {
+            $this->translations->removeElement($t);
+        }
     }
 
     /**
