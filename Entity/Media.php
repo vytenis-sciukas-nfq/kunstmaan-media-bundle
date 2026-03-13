@@ -188,16 +188,6 @@ class Media extends AbstractEntity implements HasTranslationsInterface
         cascade: ["persist", "remove"]
     )]
     protected Collection $translations;
-
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(type="string", name="site_id", nullable=true, length=50)
-     */
-    #[ORM\Column(name: 'site_id', type: 'string', nullable: true, length: 50)]
-    protected $siteId;
-
-
     public function __construct()
     {
         $this->setCreatedAt(new \DateTime());
@@ -676,25 +666,5 @@ class Media extends AbstractEntity implements HasTranslationsInterface
         if (empty($this->name)) {
             $this->setName($this->getOriginalFilename());
         }
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getSiteId(): ?string
-    {
-        return $this->siteId;
-    }
-
-    /**
-     * @param string|null $siteId
-     *
-     * @return Media
-     */
-    public function setSiteId(?string $siteId): self
-    {
-        $this->siteId = $siteId;
-
-        return $this;
     }
 }
