@@ -24,7 +24,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity()
  * @ORM\Table(name="kuma_media_translations",
  *     uniqueConstraints={@ORM\UniqueConstraint(name="lookup_unique_idx", columns={
- *         "locale", "object_id", "field", "domain"
+ *         "locale", "object_id", "field"
  *     })}
  * )
  */
@@ -34,25 +34,17 @@ use Doctrine\ORM\Mapping as ORM;
     uniqueConstraints: [
         new ORM\UniqueConstraint(
             name: "lookup_unique_idx",
-            columns: ["locale", "object_id", "field", "domain"]
+            columns: ["locale", "object_id", "field"]
         )
     ]
 )]
 class Translation extends AbstractPersonalTranslation implements TranslationInterface
 {
-    /**
-     * @var string|null
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    #[ORM\Column(type: "string", length: 255, nullable: true)]
-    protected ?string $domain = null;
-
-    public function __construct(string $locale, string $field, ?string $value, ?string $domain = null)
+    public function __construct(string $locale, string $field, ?string $value)
     {
         $this->setLocale($locale);
         $this->setField($field);
         $this->setContent($value);
-        $this->setDomain($domain);
     }
 
     /**
@@ -62,16 +54,4 @@ class Translation extends AbstractPersonalTranslation implements TranslationInte
     #[ORM\ManyToOne(targetEntity: Media::class, inversedBy: "translations")]
     #[ORM\JoinColumn(name: "object_id", referencedColumnName: "id", onDelete: "CASCADE")]
     protected $object;
-
-    public function getDomain(): ?string
-    {
-        return $this->domain;
-    }
-
-    public function setDomain(?string $domain): self
-    {
-        $this->domain = $domain;
-
-        return $this;
-    }
 }
