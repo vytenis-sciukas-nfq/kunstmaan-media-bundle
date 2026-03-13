@@ -165,14 +165,6 @@ class Folder extends AbstractEntity implements GedmoNode
      */
     private $sibling;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(type="string", name="site_id", nullable=true, length=50)
-     */
-    #[ORM\Column(name: 'site_id', type: 'string', nullable: true, length: 50)]
-    protected $siteId;
-
     public function __construct()
     {
         $this->children = new ArrayCollection();
@@ -528,9 +520,9 @@ class Folder extends AbstractEntity implements GedmoNode
     public function getOptionLabel()
     {
         return str_repeat(
-            '-',
-            $this->getLevel()
-        ) . ' ' . $this->getName();
+                '-',
+                $this->getLevel()
+            ) . ' ' . $this->getName();
     }
 
     /**
@@ -558,25 +550,5 @@ class Folder extends AbstractEntity implements GedmoNode
     public function preUpdate()
     {
         $this->setUpdatedAt(new \DateTime());
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getSiteId(): ?string
-    {
-        return $this->siteId;
-    }
-
-    /**
-     * @param string|null $siteId
-     *
-     * @return Folder
-     */
-    public function setSiteId(?string $siteId): self
-    {
-        $this->siteId = $siteId;
-
-        return $this;
     }
 }
